@@ -1,0 +1,9 @@
+flask==3.0.2
+langchain-community==0.0.29
+langchain-huggingface==0.0.3
+sentence-transformers==2.6.1
+faiss-cpu==1.7.4  # Try an older version
+tiktoken==0.5.2  # Try an older version
+PyPDF2==3.0.1
+python-docx==1.1.0
+numpy==1.26.4

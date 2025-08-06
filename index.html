@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Policy Decision System</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Insurance Policy Decision System</h1>
+            <p class="subtitle">Get instant decisions on your insurance claims</p>
+        </header>
+
+        <main>
+            <div class="input-section">
+                <label for="queryInput">Enter your insurance query:</label>
+                <textarea id="queryInput" placeholder="Example: 46-year-old male, knee surgery in Pune, 3-month-old insurance policy"></textarea>
+                <button id="submitBtn" onclick="getDecision()">Get Decision</button>
+                <div class="example-queries">
+                    <p>Try these examples:</p>
+                    <ul>
+                        <li onclick="fillExample(this)">32-year-old female, maternity care in Mumbai, 1-year policy</li>
+                        <li onclick="fillExample(this)">58-year-old male, heart bypass in Delhi, 6-month policy</li>
+                        <li onclick="fillExample(this)">28-year-old female, dental implants in Bangalore, 2-year policy</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="result" class="result-section hidden">
+                <div class="decision-header">
+                    <h2>Decision</h2>
+                    <span id="decisionBadge" class="decision-badge"></span>
+                </div>
+                <div class="decision-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Amount:</span>
+                        <span id="amountDetail" class="detail-value"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Justification:</span>
+                        <p id="justificationDetail" class="detail-value"></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2024 Insurance Decision System. For demonstration purposes only.</p>
+        </footer>
+    </div>
+
+    <script>
+        function fillExample(element) {
+            document.getElementById('queryInput').value = element.textContent;
+        }
+
+        async function getDecision() {
+            const query = document.getElementById('queryInput').value.trim();
+            const resultDiv = document.getElementById('result');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (!query) {
+                alert('Please enter your insurance query');
+                return;
+            }
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            resultDiv.classList.add('hidden');
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({query: query})
+                });
+                
+                const data = await response.json();
+                
+                // Update UI with results
+                const decisionBadge = document.getElementById('decisionBadge');
+                const amountDetail = document.getElementById('amountDetail');
+                const justificationDetail = document.getElementById('justificationDetail');
+                
+                decisionBadge.textContent = data.Decision;
+                amountDetail.textContent = data.Amount;
+                justificationDetail.textContent = data.Justification;
+                
+                // Set appropriate color for decision badge
+                decisionBadge.className = 'decision-badge ';
+                if (data.Decision.toLowerCase().includes('approved')) {
+                    decisionBadge.classList.add('approved');
+                } else if (data.Decision.toLowerCase().includes('rejected')) {
+                    decisionBadge.classList.add('rejected');
+                } else {
+                    decisionBadge.classList.add('partial');
+                }
+                
+                // Show result
+                resultDiv.classList.remove('hidden');
+                
+            } catch (error) {
+                alert('An error occurred. Please try again later.');
+                console.error('Error:', error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Get Decision';
+            }
+        }
+    </script>
+</body>
+</html>
